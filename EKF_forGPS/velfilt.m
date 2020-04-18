@@ -12,14 +12,14 @@ function [vx_his, vy_his, vx_gps, vy_gps] = velfilt(accfile, gpsfile)
     dt = 0.05;
     t = 0:dt:dt*size(acc,2);
     %% low pass filter
-%     f0=0.25; %cut-off frequency
-%     w0=2*pi*f0;
-%     N=512;
-%     Fs=20; % sampling frequency
-%     [NUMs,DENs]=butter(2,w0,'s'); %Butterworth order 2.
-%     [NUMdp,DENdp] = bilinear(NUMs,DENs,Fs,f0) ;%with prewarping
-%     
-%     acc = filtfilt(NUMdp,DENdp,acc.').';
+    f0=0.25; %cut-off frequency
+    w0=2*pi*f0;
+    N=512;
+    Fs=20; % sampling frequency
+    [NUMs,DENs]=butter(2,w0,'s'); %Butterworth order 2.
+    [NUMdp,DENdp] = bilinear(NUMs,DENs,Fs,f0) ;%with prewarping
+    
+    acc = filtfilt(NUMdp,DENdp,acc.').';
 
    % acclong = filtfilt(NUMdp,DENdp,acclong);
     %% Filtering
@@ -33,9 +33,9 @@ function [vx_his, vy_his, vx_gps, vy_gps] = velfilt(accfile, gpsfile)
 %     py = [0];
     P = eye(2);
     Q = 0;
-    R = 0;
+    R = 0.1;
     for i = 1:size(acc,2);
-        [V, P] = prediction([vx_his(i);vy_his(i)], [acc(1,i);acc(2,i)], P, Q); % prediction
+        [V, P] = prediction([vx_his(i);vy_his(i)], [acc(1,i);-acc(2,i)], P, Q); % prediction
         
         if (mod(i,20)==0)
             [V, P, K] = measUpdate(V, P, R, gps(i/20)); % update, rate 20 iteration 
